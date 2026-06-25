@@ -1,0 +1,152 @@
+import easygui
+
+#existing cards
+cards = {
+    1: {"Name": "Stoneling", "Strength": "7","Speed": "1", "Stealth": "25", "Cunning": "15"},
+    2: {"Name": "Vexscream", "Strength": "1","Speed": "6", "Stealth": "21", "Cunning": "19"},
+    3: {"Name": "Dawnmirage", "Strength": "5", "Speed": "15", "Stealth": "18", "Cunning": "22"},
+    4: {"Name": "Blazegolem", "Strength": "15", "Speed": "20", "Stealth": "23", "Cunning": "6"},
+    5: {"Name": "Websnake", "Strength": "7", "Speed": "15", "Stealth": "10", "Cunning": "5"},
+    6: {"Name": "Moldvine", "Strength": "21", "Speed": "18", "Stealth": "14", "Cunning": "5"},
+    7: {"Name": "Vortexwing", "Strength": "19", "Speed": "13", "Stealth": "19", "Cunning": "2"},
+    8: {"Name": "Rotthing", "Strength": "16", "Speed": "7", "Stealth": "4", "Cunning": "12"},
+    9: {"Name": "Frotstep", "Strength": "14", "Speed": "14", "Stealth": "17", "Cunning": "4"},
+    10:{"Name": "Wispghoul", "Strength": "17", "Speed": "19", "Stealth": "3", "Cunning": "2"}
+}
+
+#Game details
+easygui.msgbox("Welcome to the Monster Card Game.\nIn this game"
+        "you have a list of cards where you can add, delete"
+        ", search and print cards.", title="Monster Card Game")
+
+#Monster Card Collection
+message =""
+for entries, collection in cards.items():
+    message += "\n\nCard" + str(entries) + ":\n"
+    for key, value in collection.items():
+      message += key + ":" +str(value) + "\n"
+easygui.msgbox(message,title="Monster Card Game")
+
+#Add, search, remove and exit 
+while True:
+   choice = easygui.buttonbox("Choose an option below:",
+                              title="Monster Card of game",
+                              choices=["Add", "Search", "Remove", "Print", "Exit"])
+   
+#Add a new card
+   if  choice == "Add":
+      while True:
+         new_card = easygui.multenterbox("Enter new card details",
+                      "Add card",
+                      ["Name", "Strength",
+                       "Speed", "Stealth", "Cunning"])
+      if new_card and all(new_card):
+         try:
+            # limit of the numbers
+            strength = max(1, min(int(new_card[1]), 25))
+            speed = max(1, min(int(new_card[1]), 25))
+            stealth = max(1, min(int(new_card[3]), 25))
+            cunning = max(1,min(int(new_card[4]), 25))
+            card_id = max(cards.keys()) + 1
+            cards[card_id]={
+               "Name": new_card[0],
+               "Strength": strength,
+               "Speed": speed,
+               "Stealth": stealth,
+               "Cunning": cunning
+            }
+            easygui.msgbox(f"Card added successfully!\n\n{cards[card_id]}",
+                           title="Monster Card Game")
+            #After adding the card ask if user wants to edi it
+            edit_choice = easygui.buttonbox("Do you want to edit this card?",
+                                            title= "Monster Card Game",
+                                            choices= ["Edit", "Confirm"])
+            if edit_choice == "Edit":
+               updated_card = easygui.multenterbox("Update card details:", "Edit card",
+                                                   ["Name", "Strength", "Speed", "Stealth", "Cunning"],
+                                                   [cards[card_id]["Name"],
+                                                    str(cards[card_id]["Strength"]),
+                                                    str(cards[card_id]["Speed"]),
+                                                    str(cards[card_id]["Stealth"]),
+                                                    str(cards[card_id]["Cunning"])])
+               if updated_card and all(updated_card):
+                  #Update the card
+                  cards[card_id]["Name"] = updated_card[0]
+                  cards[card_id]["Strength"] = max (1, min(int(updated_card[1]),25))
+                  cards[card_id]["Speed"] = max(1, min(int(updated_card[2]), 25))
+                  cards[card_id]["Stealth"] = max(1, min(int(updated_card[3]), 25))
+                  cards[card_id]["Cunning"] = max(1, min(int(updated_card[4]), 25))
+                  easygui.msgbox("Card is successfully updated!",
+                          title="Monster Card Game")
+            break #Exit the loop after add/edit card
+         except ValueError:
+            easygui.msgbox("Invalid input! Strength,"
+                    "Speed, Stealth and Cunning"
+                    "must be numbers",
+                    title="Monster Card Game")
+            #Look up a card in the catalogue
+   elif choice == "search":
+      card_names = [card["Name"] for card in cards.values()]
+      name_list = "Available Monsters:\n\n" + "\n".join(card_names)
+
+      search_name = easygui.enterbox(
+       name_list + "\n\nEnter the name of the card to search",
+       title="Monster Card Game"
+      )
+
+      if search_name:
+        search_name = search_name.strip().lower()
+        result = None
+        for card in cards.values():
+         if card["Name"].lower() == search_name:
+            result = card
+            break # Exit the loop once its found
+         #Display of the search result
+         if result:
+            card_info = "\n".join([f"{key}: {value}" for key,
+                        value in result.items()])
+            easygui.msgbox(f"Card found:\n{card_info}",
+                    title="Monster Card Game")
+         else: 
+            easygui.msgbox("Card not found", title="Monster Card Game")
+            #Deletes an existing card
+   elif choice == "Remove":
+      remove_id = easygui.enterbox("Enter the number"
+                  "of the card that you want to remove:",
+                  title="Monster Card Game")
+      if remove_id and remove_id.isdigit():
+         remove_id = int(remove_id)
+
+         if remove_id in cards:
+            card_info = "\nCard:" + str(remove_id) + "\n"
+            for key, value in cards[remove_id].items():
+               card_info +=key + ": " + str(value) + "\n"
+
+            confirmation = easygui.buttonbox("Are you sure you want to"
+                              "delete this card?\n" +
+                              str(card_info),
+                              title="Monster Card Game",
+                              choices = ["Delete", "Cancel"])
+
+            if confirmation == "Delete":
+               del cards[remove_id]
+               easygui.msgbox("Card removed successfully",
+                       title="Monster Card Game")
+            else:
+               easygui.msgbox("Deletion cancelled",
+                       title="Monster Card Game")
+         else:
+            easygui.msgbox("Card not found", title="Monster Card Game")
+            #print the card catalogue
+   elif choice == "Print":
+      message = ""
+      for entries, catalogue in cards.items():
+         message += "\nCard" + str(entries) + ":\n"
+         for key, value in catalogue.items():
+            message += key + ":" + str(value) + "\n"
+      easygui.msgbox(message, title="Monster Card Game")
+      #Allows the user to exit the game
+   elif choice == "Exit":
+      easygui.msgbox("Thank you for your time and for playing!",
+              title="Monster Card Game")
+      break
